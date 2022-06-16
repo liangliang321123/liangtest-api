@@ -1,0 +1,2967 @@
+openapi: 3.0.0
+info:
+  title: AutomatedCustomerDueDilligenceACDD
+  description: ACDD is part of the Finexus's comprehensive e-KYC web services
+  contact:
+    email: ekyc-apis@finexusgroup.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: '1.2'
+servers:
+  - url: 'https://dev.finexusgroup.com:8010/ACDD'
+    description: UAT Server
+security:
+  - default: []
+tags:
+  - name: Test
+  - name: Person
+  - name: Organisation
+  - name: Person Sanction Report
+  - name: Organisation Sanction Report
+  - name: Blacklist Report
+  - name: Ctos Report
+  - name: Security Commission Malaysia Report
+paths:
+  /test:
+    get:
+      tags:
+        - Test
+      description: To test the availability of the service
+      operationId: testACDD
+      responses:
+        '200':
+          description: Response for ACDD Health Check
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResponse'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+  /checkpersoncdd:
+    post:
+      tags:
+        - Person
+      description: >-
+        This method allows the submission of a request to check whether to 
+        admit a Person as customer in accordance to the stipulated CDD rules.
+      operationId: checkpersonCDD
+      requestBody:
+        description: >-
+          Request to evaluate a person admission as customer in accordance to
+          CDD rules
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonCDDPostRequest'
+      responses:
+        '200':
+          description: Schema for standard response for a identifyverify Post request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CDDPostResult'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+        
+    get:
+      tags:
+        - Person
+      description: >-
+        To get response for a specific checkpersoncdd POST request submitted
+        previously
+      operationId: getPersonCDDResponse
+      parameters:
+        - name: source
+          in: query
+          description: ID of the source system for the query request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: partnerId
+          in: query
+          description: The code of our customers that are using the system.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: BSSS
+        - name: productType
+          in: query
+          description: The type or name of the product. 
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: Loan Application
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: userId
+          in: query
+          description: >-
+            This is the user id of the person who perform the action. This is
+            needed when the request involve modification of the e-KYC
+            respository such as e-Money Blacklist.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: mkchan
+        - name: userToken
+          in: query
+          description: >-
+            This is security token issued by SecurityWorks which can be used to
+            verify the user id. After verification of the userid then the system
+            will determine the user has the authority to perform the requested
+            action.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: 'APPOKJJSIDJ1234'
+        - name: referenceId
+          in: query
+          description: >-
+            This parameter specifies the Source System’s reference for the earlier
+            POST request which this GET request want to get the ACDD result.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+      responses:
+        '200':
+          description: Schema for standard response for a identifyverify GET request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CDDGetResponse'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+  /checkorgcdd:
+    post:
+      tags:
+        - Organisation
+      description: >-
+        Request to evaluate the admission of an organisatoin as a customer in
+        accordance to CDD rules stipulated by BPO Risk Team
+      operationId: checkOrgCDD
+      requestBody:
+        description: >-
+          Request to evaluate a person admission as customer in accordance to
+          CDD rules
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrgCDDPostRequest'
+      responses:
+        '200':
+          description: Schema for standard response for a identifyverify Post request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CDDPostResult'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+    get:
+      tags:
+        - Organisation
+      description: >-
+        To get response for a specific checkorgncdd POST request submitted
+        previously
+      operationId: getOrgCDDResponse
+      parameters:
+        - name: source
+          in: query
+          description: ID of the source system for the query request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: userId
+          in: query
+          description: >-
+            This is the user id of the person who perform the action. This is
+            needed when the request involve modification of the e-KYC
+            respository such as e-Money Blacklist.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: mkchan
+        - name: userToken
+          in: query
+          description: >-
+            This is security token issued by SecurityWorks which can be used to
+            verify the user id. After verification of the userid then the system
+            will determine the user has the authority to perform the requested
+            action.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: 'APPOKJJSIDJ1234'
+        - name: referenceId
+          in: query
+          description: >-
+            The reference ID of an earlier submitted request to retrieve the
+            response
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+      responses:
+        '200':
+          description: Schema for standard response for a identifyverify GET request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CDDGetResponse'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+    
+  /personsanctionreport:
+    get:
+      tags:
+        - Person Sanction Report
+      description: >-
+        This service is to get the Sanction report used to evaluate a
+        Person by ACDD. 
+      operationId: getPersonSanctionReport
+      parameters:
+        - name: source
+          in: query
+          description: Name of the source system for the query request.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: partnerId
+          in: query
+          description: The code of our customers that are using the system.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'BSSS'
+        - name: productType
+          in: query
+          description: The type or name of the product. 
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'Loan Application'
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+        - name: referenceId
+          in: query
+          description: >-
+            This parameter specifies the Source System’s reference for the
+            earlier POST request which this GET request want to get the
+            ACDD result.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+      responses:
+        '200':
+          description: >-
+            Response For GET the Sanction report of an earlier checkpersoncdd or
+            checkorgcdd request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/StatusResponse'
+                  payload:
+                    $ref: '#/components/schemas/OverallPersonRefReport'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+  /orgsanctionreport:
+    get:
+      tags:
+        - Organisation Sanction Report
+      description: >-
+        To get the Sanction report used to evaluate an Organisation by 
+        ACDD. 
+      operationId: getOrgSanctionReport
+      parameters:
+        - name: source
+          in: query
+          description: ID of the source system for the query request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: partnerId
+          in: query
+          description: The code of our customers that are using the system.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'BSSS'
+        - name: productType
+          in: query
+          description: The type or name of the product. 
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'Loan Application'
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+        - name: referenceId
+          in: query
+          description: >-
+            This parameter specifies the Source System’s reference for the
+            earlier POST request which this GET request want to get the
+            ACDD result.The reference ID of an earlier submitted request
+            to retrieve the response
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+      responses:
+        '200':
+          description: >-
+            Response For GET the Sanction report of an earlier checkpersoncdd or
+            checkorgcdd request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/StatusResponse'
+                  payload:
+                    $ref: '#/components/schemas/OrgRefReport'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+  
+  /blacklistreport:
+    get:
+      tags:
+        - Blacklist Report
+      description: >-
+        To get the e-Money Blacklist report used to evaluate a Person or an
+        Organisation by ACDD. Example of a e-Money issuer will be Finexus
+        Card (e.g., source name is FNXCRDS) where ACDD will capture the
+        evaluation rules for Finexus Card.
+      operationId: getBlackListReport
+      parameters:
+        - name: source
+          in: query
+          description: ID of the source system for the query request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: partnerId
+          in: query
+          description: The code of our customers that are using the system.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'BSSS'
+        - name: productType
+          in: query
+          description: The type or name of the product. 
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'Loan Application'
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+        - name: referenceId
+          in: query
+          description: >-
+            The reference ID of an earlier submitted request to retrieve the
+            response
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+      responses:
+        '200':
+          description: Schema for the e-Money Blacklist report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/StatusResponse'
+                  payload:
+                    $ref: '#/components/schemas/BlacklistedEntity'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+  
+  /ctosreport:
+    get:
+      tags:
+        - Ctos Report
+      description: >-
+        To get the CTOS report used to evaluate a Person or an Organisation
+        by ACDD. 
+      operationId: getCTOSReport
+      parameters:
+        - name: source
+          in: query
+          description: ID of the source system for the query request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: partnerId
+          in: query
+          description: The code of our customers that are using the system.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'BSSS'
+        - name: productType
+          in: query
+          description: The type or name of the product. 
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'Loan Application'
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+        - name: referenceId
+          in: query
+          description: >-
+            This parameter specifies the Source System’s reference for the
+            earlier POST request which this GET request want to get the
+            ACDD result.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+      responses:
+        '200':
+          description: >-
+            Response For GET CTOS report of an earlier checkpersoncdd or
+            checkorgcdd request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/StatusResponse'
+                  payload:
+                    $ref: '#/components/schemas/CTOSReportResponse'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+  
+  
+  /screport:
+    get:
+      tags:
+        - Security Commission Malaysia Report
+      description: >-
+        To get the Security Commission Malaysia report used to evaluate a
+        Person or an Organisation by ACDD. 
+      operationId: getSCReport
+      parameters:
+        - name: source
+          in: query
+          description: ID of the source system for the query request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 16
+            type: string
+            example: FNXCRDS
+        - name: partnerId
+          in: query
+          description: The code of our customers that are using the system.
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'BSSS'
+        - name: productType
+          in: query
+          description: The type or name of the product. 
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 128
+            type: string
+            example: 'Loan Application'
+        - name: reference
+          in: query
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 32
+            type: string
+            example: '2003160192931'
+        - name: apiKey
+          in: query
+          description: API-key assigned by e-KYC for access by source system
+          required: false
+          style: form
+          explode: true
+          schema:
+            maxLength: 64
+            type: string
+            example: 123-KEJRU-001
+        - name: apiVersion
+          in: query
+          description: Specify the version for the API request
+          required: true
+          style: form
+          explode: true
+          schema:
+            maxLength: 8
+            type: string
+            example: '1.2'
+        - name: language
+          in: query
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: en
+            enum:
+              - en
+              - ms
+            default: en
+        - name: referenceId
+          in: query
+          description: >-
+            This parameter specifies the Source System’s reference for the
+            earlier POST request which this GET request want to get the
+            ACDD result.
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: '2003160192931'
+      responses:
+        '200':
+          description: Schema for the Security Commission Malaysia report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/StatusResponse'
+                  payload:
+                    $ref: '#/components/schemas/SCReportResult'
+        '400':
+          description: Bad input request
+        '401':
+          description: Unauthorised access - unable to authenticate source system
+        '405':
+          description: >-
+            Forbidden access - source system is not authorised to perform an
+            action
+      security:
+        - default: []
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
+components:
+  schemas:
+    SourceSystemInfo:
+      description: >-
+        This object contains information about the caller requesting 
+        to use a service.
+      required:
+        - apiVersion
+        - reference
+        - source
+        - partnerId
+        - productType
+      type: object
+      properties:
+        source:
+          maxLength: 16
+          type: string
+          description: Name of the source system requesting for the service.
+          example: FNXCRDS
+        partnerId:
+          maxLength: 128
+          type: string
+          description: >-
+            The code of our customers that are using the system.
+          example: 'BSSS'
+        productType:
+          maxLength: 128
+          type: string
+          description: The type or name of the product. 
+          example: 'Loan Application'
+        reference:
+          maxLength: 32
+          type: string
+          description: >-
+            The unique reference used by the source system when iniate the
+            request
+          example: '2003160192931'
+        apiVersion:
+          maxLength: 8
+          type: string
+          description: Specify the version for the API request
+          example: '1.2'
+        apiKey:
+          maxLength: 64
+          type: string
+          description: API-key assigned by e-KYC for access by source system
+          example: 123-KEJRU-001
+        userId:
+          maxLength: 32
+          type: string
+          description: >-
+            This is the user id of the person who perform the action. This is
+            needed when the request involve modification of the e-KYC
+            respository such as Blacklist.
+          example: mkchan
+        userToken:
+          maxLength: 64
+          type: string
+          description: >-
+            This is security token issued by SecurityWorks which can be used to
+            verify the user id. After verification of the userid then the system
+            will determine the user has the authority to perform the requested
+            action.
+          example: APPOKJJSIDJ1234
+    InteractionMode:
+      description: >-
+        This object contains information on how the caller want the Provider to
+        process its request which either on synchronous (SYNC) or asynchronous
+        (ASYNC) basis.
+        
+        For synchronous mode, the caller will wait (or block) until the Provider
+        respond with the response.
+        
+        For asynchronous mode, the caller will get immediate response with the 
+        status of request being “QUEUED” and get the response later either by
+        providing a callback URL for the Provider to post the response or to 
+        query for the response using a GET request after waiting for an interval
+        period.
+
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          description: >-
+            This flag indicates that the caller will wait for the response
+            synchronously(SYNC) or asynchronously. For synchronous call, the
+            response will be returned with status 200. For asynchronous call,
+            the response will return immediately once request body has been
+            validated with status 201.
+          enum:
+            - SYNC
+            - ASYNC
+        callbackUrl:
+          maxLength: 256
+          type: string
+          description: >-
+            The value for this field will only be used if the mode is ASYNC.
+            If a valid URL is provided by Source System, then the Provider 
+            to post the request’s response to the URL.
+            If the mode is ASYNC and if the Source System does not provide a 
+            callback URL, then the Provider will perform any action upon 
+            completion.
+            Source System will need to call corresponding GET request to get
+            the response.
+          format: uri
+    PersonName:
+      description: >-
+        This object contains various representations of a Person name which may 
+        make it easier to search against the imprecise nature of the various
+        authorities’ Sanction Lists.
+      required:
+        - fullName
+      type: object
+      properties:
+        fullName:
+          description: >-
+            A person’s full name as recorded in the person’s ID document.
+          maxLength: 128
+          type: string
+          example: John Smith
+        givenName:
+          description: >-
+            A given name is the part of a person’s name that identifies a 
+            person and differentiates that person from the other members of 
+            a group who have a common surname.
+          maxLength: 128
+          type: string
+          example: John
+        familyName:
+          description: >-
+            The person’s family name, surname or the name of the father.
+          maxLength: 128
+          type: string
+          example: Smith
+        aliases:
+          description: >-
+            Any aliases for the Person.
+          type: array
+          items:
+            maxLength: 128
+            type: string
+            example: William Smith
+      
+    PersonIDdocInfo:
+      description: >-
+        This object contains information about the Identification Document
+        used by the Person to apply as a customer.
+      required:
+        - idNo
+        - idType
+      type: object
+      properties:
+        idType:
+          type: string
+          maxLength: 32
+          description: To identify the type of ID document associated with the person
+          example: NRIC
+        idNo:
+          maxLength: 32
+          type: string
+          description: >- 
+            The ID document's unique identifier. 
+            For Malaysian ID, this is the New NRIC number. 
+          example: 700225106667
+        icLc:
+          maxLength: 32
+          type: string
+          description: >- 
+            The Malaysian’s Old IC number or Army ID number or Police ID number
+          example: '0012345'
+        issuedByCountry:
+          description: >-
+            The value follows ISO3166-1 Alpha 2 country codes. For ID
+            document issued by United Nation, the value shall be "UN"'
+          maxLength: 2
+          type: string
+          example: MY
+        issuedDate:
+          type: string
+          description: >-
+            The issue date of the ID document
+            Format: YYYY-MM-DD
+          format: date
+        expiryDate:
+          type: string
+          description: >-
+            The expiry date of the ID document
+            Format: YYYY-MM-DD
+          format: date
+      
+    Address:
+      description: >-
+        The object breaks a postal address into sub-components to facilitate search
+        against an imprecise Sanction Lists.
+      required:
+        - addrLine1
+        - city
+        - country
+        - postcode
+        - state
+      type: object
+      properties:
+        addrLine1:
+          maxLength: 256
+          type: string
+          description: >-
+            The 1st line of the postal address. This line usually contains the Unit 
+            No, Building Name or Street Name.
+          example: No 1 Jalan Manis
+        addrLine2:
+          maxLength: 256
+          type: string
+          description: The 2nd Line of the Address
+          example: Taman Madu
+        addrLine3:
+          maxLength: 256
+          type: string
+          description: The 3rd Line of the Address
+        city:
+          maxLength: 128
+          type: string
+          description: Name of the City
+          example: Kuala Lumpur
+        state:
+          maxLength: 128
+          type: string
+          description: Name of the State
+          example: Selangor
+        country:
+          description: >-
+            The address’s country code. ISO3166-1 Alpha 1 country codes
+          maxLength: 2
+          type: string
+          example: MY
+        postcode:
+          maxLength: 16
+          type: number
+          description: Postal Code
+          example: 50200
+    
+    EmploymentDetail:
+      description: This object contains information about a Person’s employment.
+      required:
+        - duration
+        - employer
+        - position
+      type: object
+      properties:
+        position:
+          maxLength: 64
+          type: string
+          description: >-
+            The job title of the person which indicates his/her role and
+            responsibilities in employment.
+          example: Engineer
+        employer:
+          allOf: 
+            - description: The entity which employs the person.
+            - $ref: '#/components/schemas/Organisation'
+        duration:
+          type: number
+          description: >-
+            The duration of which the person has been working with the employer.
+          example: 2.5
+    
+    BankingInfo:
+      description: >-
+        Detail information of a bank deposit account maintain at a local bank
+      required:
+        - bankCode
+      type: object
+      properties:
+        bankCode:
+          maxLength: 16
+          type: string
+          description: >-
+            PayNet’s code assigned to the local bank which the Applicant maintains 
+            a deposit account.
+          example: HSBC0222
+        accountNo:
+          maxLength: 32
+          type: string
+          description: >-
+            The account number of a deposit account maintained at a local bank.
+          example: '1340295020304'
+        accountName:
+          maxLength: 128
+          type: string
+          description: The name of the beneficary owner of the deposit account
+          example: Chan Mun Kit
+        ownership:
+          type: string
+          description: >- 
+            Indicate the type of ownership for the deposit account. 
+            I for Individual ownership, or J for Joint Ownership.
+          enum:
+            - I
+            - J
+    
+    StatusResponse:
+      description: >-
+        This object contains information for the Status section of a Response 
+        message.
+      required:
+        - sourceinfo
+        - errorList
+        - status
+      type: object
+      properties:
+        sourceInfo:
+          allOf:
+          - description: >-
+              This object encapsulates the information related to the system which
+              sent in the request.
+          - $ref: '#/components/schemas/SourceSystemInfo'
+        errorlist:
+          type: array
+          description: >-
+            The status is FAIL then the caller may check the errorlist of the
+            detail of errors
+          items:
+            $ref: '#/components/schemas/ErrorMsg'
+        status:
+          type: string
+          example: SUCCESS
+          enum:
+            - QUEUED
+            - SUCCESS
+            - FAIL
+          
+    ErrorMsg:
+      description: >-
+        This object contains description of the error encountered during processing
+        of the request. 
+      required:
+        - msgCode
+        - msgText
+      type: object
+      properties:
+        msgText:
+          description: >-
+            This is text which description of the error and it will be in the
+            language specified in the Language field of the request. 
+            Currently, the supported message texts are in English and Malay 
+            language.
+          type: string
+          maxLength: 128
+        msgCode:
+          maxLength: 8
+          type: string
+          description: This is the message code of the error. 
+          example: '0000'
+          
+    CDDPostResult:
+      description: >-
+        This object provides the response for a /checkpersoncdd POST request which
+        includes the standard status response and if process successfully then it
+        contains ACDD evaluation results.
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          allOf:
+            - description: >-
+                This object contains information for the Status section of a Response
+                message.
+            - $ref: '#/components/schemas/StatusResponse'
+        payload:
+          allOf:
+            - description: >-
+                This object contains information on ACDD’s evaluation result. 
+            - $ref: '#/components/schemas/CDDResult'
+    
+    CDDResult:
+      description: This object contains information on ACDD’s evaluation result. 
+      required:
+        - ctosReport
+        - scReport
+        - blacklistReport
+        - reasoning
+        - recommendation
+        - threshold
+        - riskScore
+        - sanctionReport
+      type: object
+      properties:
+        ctosReport:
+          type: string
+          description: >-
+            This field indicates whether a CTOS report is available as supporting
+            information should BPO wishes to check the report during manual review.
+            If available, then the report can be retrieved using the /ctosreport GET
+            request.
+            T – Report Available, F- Report Not Available
+          example: F
+          enum:
+            - T
+            - F
+        scReport:
+          type: string
+          description: >-
+            This field indicates whether a Securities Commissions Malaysia report is
+            available as supporting information should BPO wishes to check the report
+            during manual review.
+            If available, then the report can be retrieved using the /screport GET
+            request.
+            T – Report Available, F- Report Not Available
+          example: F
+          enum:
+            - T
+            - F
+        blacklistReport:
+          type: string
+          description: >-
+            This field indicates whether a e-Money Blacklist report is available as
+            supporting information should BPO wishes to check the report during 
+            manual review.
+            If available, then the report can be retrieved using the /blacklistreport
+            GET request.
+            T – Report Available, F- Report Not Available
+          example: F
+          enum:
+            - T
+            - F
+        reasoning:
+          allOf:
+            - description: >-
+                This object will show details of all the rules evaluated by ACDD 
+                that leads to its recommendation.
+            - $ref: '#/components/schemas/EvaluationDetails'
+        recommendation:
+          type: string
+          description: >-
+            This field indicates ACDD’s recommendation whether to accept, reject 
+            or to manually review the Applicant with information from various
+            supporting reports.
+            A – Accept
+            R – Reject
+            M – Manual Review
+          enum:
+            - A
+            - R
+            - M
+        threshold:
+          type: number
+          description: >-
+            This field provides the threshold whereby if the computed overall risk
+            score has exceeded then ACDD will recommend to reject the Applicant.
+            Between 0 - 100
+          example: 33
+        riskScore:
+          type: number
+          description: >-
+            This is the overall risk score computed during the evaluation.
+            Higher the value will reflect higher risk.
+            Between 0 - 100
+          example: 0
+        sanctionReport:
+          type: string
+          description: >-
+            This field indicates whether a Sanction report is available as supporting
+            information should BPO wishes to check the report during manual review.
+            If available, then the report can be retrieved using the /sanctionreport
+            GET request.
+            T – Report Available, F- Report Not Available
+          example: F
+          enum:
+            - T
+            - F
+    
+    EvaluationDetails:
+      description: >-
+        This object will show details of all the rules evaluated by ACDD that 
+        leads to its recommendation.
+      required:
+        - rulesEvaluated
+        - reEvaluate
+      type: object
+      properties:
+        rulesEvaluated:
+          description: >-
+            This object provides the detail result of a rule that has been 
+            evaluated.
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluatedRules'
+        reEvaluate:
+          type: string
+          description: >-
+            This field display the re-evaluation results upon request
+            T – True, or F – False
+          example: F
+          enum:
+            - T
+            - F
+    
+    EvaluatedRules:
+      description: This object define the result of a rule that has been evaluated
+      required:
+        - ruleDescription
+      type: object
+      properties:
+        ruleDescription:
+          maxLength: 128
+          type: string
+          description: >-
+            This field provides a brief description of the rule that has been
+            evaluated.
+        ruleSaliency:
+          maxLength: 3
+          type: number
+          description: >-
+            The field display the Saliency (or order of priority) of the rule
+          example: 10
+        result:
+          type: string
+          description: >-
+            This field shows the result of evaluation.
+            PASS, FAIL or MANUAL
+          enum:
+            - PASS
+            - FAIL
+            - MANUAL
+        weight:
+          maxLength: 3
+          type: number
+          description: >-
+            This is weightage assigned to the rule. The value range for 0 - 100
+          example: 100
+        ruleId:
+          description: The ID of the rules. 
+          maxLength: 16
+          type: string
+    
+    Organisation:
+      description: >-
+        This object provides the details of the organisation applied to join 
+        as customer.
+      required:
+        - address
+        - countryDomicile
+        - idNo
+        - idType
+        - legalForm
+        - legalName
+        - mcc
+        - pic
+      type: object
+      properties:
+        legalForm:
+          maxLength: 3
+          type: string
+          description: >-
+            The classification code of the organisation, e.g., sole proprietor,
+            partnership, LLB, private limited company, public company, foreign
+            registered company. The code shall conform to CCRIS’s Basic Group Code.
+          example: '24'
+        legalName:
+          maxLength: 128
+          type: string
+          description: The name of the organsisation as in the ID document
+          example: Beryaya Starbuicks Sdn Bhd
+        bizName:
+          maxLength: 128
+          type: string
+          description: The brand name under which the organisation operates.
+          example: Starbuicks Malaysia
+        idType:
+          maxLength: 32
+          type: string
+          description: >-
+            The type of business entities. E.g sole proprietor, partnership,
+            limited liability partnership (LLP), private limited company, 
+            public limited company,..
+          example: PLC
+        idNo:
+          maxLength: 32
+          type: string
+          description: >-
+            This field contains the business registration number of the 
+            organisation as in the official ID document. 
+          example: 948649-V
+        icLc:
+          maxLength: 32
+          type: string
+          description: >-
+            This field contains the company local number as in the official 
+            ID document. 
+        countryDomicile:
+          description: >-
+            This field contains the country of domicile for the organization.
+            An organisation’s country of domicile is a place where an 
+            organisation’s principal affairs of business are maintained.
+            ISO3166-1 Alpha 1 country codes
+          maxLength: 2
+          type: string
+          example: MY
+        address:
+          allOf:
+            - description: The office address of the organization.
+            - $ref: '#/components/schemas/Address'
+        mcc:
+          maxLength: 4
+          type: number
+          description: >-
+            The merchant category code based on ISO 18245 to be assigned to the
+            organisation
+          example: 5812
+        pic:
+          allOf:
+            - description: This fields contains the name of the person-in-charge.
+            - $ref: '#/components/schemas/PersonName'
+    
+    TestResponse:
+      required:
+        - config
+        - database
+        - log
+      type: object
+      properties:
+        database:
+          type: boolean
+          description: Connection to the database
+        log:
+          type: boolean
+          description: Ability to read and write to the log file
+        config:
+          type: boolean
+          description: Ability to read the config files
+    
+    PersonCDDPostRequest:
+      required:
+        - applicantName
+        - dob
+        - gender
+        - idDoc
+        - interactionMode
+        - nationality
+        - purpose
+        - sourceInfo
+      type: object
+      properties:
+        sourceInfo:
+          allOf:
+            - description: >- 
+                This object encapsulates the information related to the system which
+                sent in the request.
+            - $ref: '#/components/schemas/SourceSystemInfo'
+        interactionMode:
+          allOf: 
+            - description: >-
+                This flag indicates that the caller will wait for the response
+                synchronously (SYNC) or asynchronously (ASYNC). 
+                Recommended to use ASYNC for /checkpersoncdd POST. 
+            - $ref: '#/components/schemas/InteractionMode'
+        language:
+          type: string
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English.
+          enum:
+            - en
+            - ms
+          default: en
+        purpose:
+          maxLength: 16
+          type: string
+          description: >-
+            The purpose for which the Applicant is to be evaluated by ACDD.
+            More possible values available in future when more evaluation
+            assessment can be automated by ACDD.
+          enum:
+            - BASIC
+            - ENHANCE
+        reEvaluate:
+          type: string
+          description: >-
+            This is a flag to indicate the caller would like ACDD to evaluate
+            the Person for all stages despite earlier stage has recommended
+            Rejection
+            T – True, or F – False
+          example: F
+          enum:
+            - T
+            - F
+          default: F
+        requiredReport:
+          type: string
+          description: >-
+            This is to indicate if the Source System would require a report for Credit
+            Scoring or not. 
+            By default, the system will provide report. 
+          example: Yes
+          enum:
+            - Yes
+            - No
+        reportFormat:
+          type: string
+          description: >-
+            This is to indicate if the Source Sytem would like to view the Credit
+            Scoring in JSON format or XML format. 
+            By default, system will provide report in JSON format.
+          example: JSON
+          enum:
+            - JSON
+            - XML
+        applicantName:
+          allOf:
+            - description: >-
+                This object is used to provide the name of the applicant in various
+                forms.
+            - $ref: '#/components/schemas/PersonName'
+        nationality:
+          description: >-
+            The country code of the applicant’s citizenship.
+            ISO3166-1 Alpha 1 country codes
+          maxLength: 2
+          type: string
+          example: MY
+        idDoc:
+          allOf:
+            - description: >-
+                The object contained detailed information of Applicant's ID document
+            - $ref: '#/components/schemas/PersonIDdocInfo'
+        dob:
+          type: string
+          description: >-
+            The applicant’s Date of Birth. 
+            Format: YYYY-MM-DD
+          format: date
+        gender:
+          type: string
+          description: The applicant’s gender. F for female and M for male.
+          example: M
+          enum:
+            - M
+            - F
+        email:
+          type: string
+          description: The applicant's email address
+          format: email
+          example: mkchan88@gmail.com
+        race:
+          maxLength: 64
+          type: string
+          description: The applicant's race and ethnicity
+          example: Malay
+        address:
+          allOf:
+            - description: The applicant’s residential address.
+            - $ref: '#/components/schemas/Address'
+        pob:
+          allOf:
+            - description: The applicant’s place of birth.
+            - $ref: '#/components/schemas/Address'
+        homeTelNo:
+          maxLength: 12
+          type: string
+          description: The applicant’s residential telephone no.
+          example: '0123459999'
+        officeTelNo:
+          maxLength: 12
+          type: string
+          description: The applicant’s office telephone number.
+          example: '0123459999'
+        mobileNo:
+          maxLength: 12
+          type: string
+          description: The applicant’s mobile telephone number.
+          example: '0123459999'
+        employment:
+          allOf:
+            - description: Details of applicant’s employment
+            - $ref: '#/components/schemas/EmploymentDetail'
+        bankInfo:
+          allOf:
+            - description: Details of applicant’s deposit account with a local bank.
+            - $ref: '#/components/schemas/BankingInfo'
+        dmn:
+          allOf:
+            - description: Information needed for DMN.
+            - $ref: '#/components/schemas/DMNInfo'
+        testCase:
+          type: number
+          description: The number for which testcase of CTOS to use.
+          example: 9
+          
+    CDDGetResponse:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusResponse'
+        payload:
+          $ref: '#/components/schemas/CDDPostResult'
+    
+    OrgCDDPostRequest:
+      required:
+        - interactionMode
+        - organisation
+        - purpose
+        - reEvaluate
+        - sourceInfo
+      type: object
+      properties:
+        sourceInfo:
+          allOf:
+            - description: >- 
+                This object encapsulates the information related to the system which
+                sent in the request.
+            - $ref: '#/components/schemas/SourceSystemInfo'
+        interactionMode:
+          allOf: 
+            - description: >-
+                This flag indicates that the caller will wait for the
+                response
+                synchronously (SYNC) or asynchronously (ASYNC). 
+                Recommended to use ASYNC for /checkorgcdd POST. 
+            - $ref: '#/components/schemas/InteractionMode'
+        language:
+          type: string
+          description: >-
+            Specify the language of the message text in the response message.
+            Currently supports only English.
+          example: en
+          enum:
+            - en
+            - ms
+          default: en
+        purpose:
+          maxLength: 64
+          type: string
+          description: >-
+            The purpose for which the Applicant is to be evaluated by ACDD.
+            More possible values available in future when more evaluation
+            assessment can be automated by ACDD.
+          example: BASIC
+          enum: 
+            - BASIC
+            - ENHANCE
+        reEvaluate:
+          type: string
+          description: >-
+            This is a flag to indicate the caller would like ACDD to evaluate
+            the Person for all stages despite earlier stage has recommended
+            Rejection
+          example: F
+          enum:
+            - T
+            - F
+          default: F
+        requiredReport:
+          type: string
+          description: >-
+            This is to indicate if the Source System would require a report for Credit
+            Scoring or not. 
+            By default, the system will provide report. 
+          example: Yes
+          enum:
+            - Yes
+            - No
+        reportFormat:
+          type: string
+          description: >-
+            This is to indicate if the Source Sytem would like to view the Credit
+            Scoring in JSON format or XML format. 
+            By default, system will provide report in JSON format.
+          example: JSON
+          enum:
+            - JSON
+            - XML
+        organisation:
+          allOf:
+            - description: >-
+                This object contains the details of the organisation 
+                applied to join as customer.
+            - $ref: '#/components/schemas/Organisation'
+        email:
+          maxLength: 256
+          type: string
+          description: The organisation's email address
+          format: email
+          example: abc@email.com
+        website:
+          maxLength: 256
+          type: string
+          description: The official website of the organisation
+          example: www.xyz55.com
+        officeTelNo:
+          maxLength: 16
+          type: string
+          description: The organisation’s office telephone number.
+          example: '0123459999'
+        bankInfo:
+          allOf:
+            - description: Details of Organisation’s deposit account with a local bank.
+            - $ref: '#/components/schemas/BankingInfo'
+        dmn:
+          allOf:
+            - description: Information needed for DMN.
+            - $ref: '#/components/schemas/DMNInfo'
+        testCase:
+          type: number
+          description: The number for which testcase of CTOS to use.
+          example: 9
+    
+    BlacklistedEntity:
+      description: >- 
+        This object contains information for a e-Money 
+        blacklisted person or organization which matches
+        the Applicant.
+      required:
+        - reasonText
+        - entityType
+        - eMoneyID
+        - active
+        - remark
+        - idNo
+        - nationality
+        - idType
+        - cwRefID
+        - name
+        - modifiedDate
+        - reasonCode
+        - id
+        - createDate
+      type: object
+      properties:
+        reasonText:
+          type: string
+          description: The reason for blacklisting this entity
+          example: Illegal
+        entityType:
+          type: string
+          description: >-
+            The type of entity for this blacklist entity, which is either 
+            P for Person and O for organisation
+          example: P
+          enum:
+            - P
+            - O
+        eMoneyID:
+          maxLength: 32
+          type: string
+          description: >-
+            This field contain the code of our eMoney customers which are using our
+            system to maintain their blacklist. Example of such customers -Finexus
+            Cards, UMobile, MerchantTrade, etc
+          example: FNXCARDS
+        active:
+          type: boolean
+          description: >-
+            Indicate the person or organisation is Active or not.
+        remark:
+          type: string
+          description: >-
+            Remark for the listed person or organisation. 
+        idNo:
+          maxLength: 32
+          type: string
+          description: This ID no of the blacklisted entity. 
+          example: 948649-V
+        nationality:
+          maxLength: 2
+          type: string
+          description: >-
+            The country code of the applicant’s citizenship.
+            ISO 3166-1 Alpha 2 codes
+          example: MY
+        idType:
+          type: string
+          description: >-
+            This field indicates the type of ID document for the entity.
+          example: NRIC
+        cwRefId:
+          maxLength: 64
+          type: string
+          description: This is the CardWorks' Customer Reference ID
+          example: '2019040102929'
+        name:
+          maxLength: 256
+          description: >-
+            The name of the blacklisted entity in ID document
+          example: John Smith
+        modifiedDate:
+          type: string
+          description: >-
+            Indicate the date when the system modified
+            the data into the
+            database.
+        reasonCode:
+          type: string
+          description: The reason in code for blacklisting this entity
+          example: "0074"
+        id:
+          type: string
+          description: Indicate the id of each blacklisted entities.
+        createDate:
+          type: string
+          description: >-
+            Indicate the date when the system create the 
+            data into the database.
+      
+    PersonRefReport:
+      description: >-
+        The section of response provides details of the 
+        result check against various negative reference 
+        repository (e.g. UN Sanction, OFAC Sanction,
+        BNM, KDN)
+      required:
+        - totalMatched
+      type: object
+      properties:
+        totalMatch:
+          type: number
+          description: >-
+            Indicate the number of negative reference 
+            matched individuals
+          example: 1
+        sdnList:
+          type: array
+          description: List of SDNs matched by NRC
+          items:
+            $ref: '#/components/schemas/MatchedPersonSDN'
+      
+    OrgRefReport:
+      description: >-
+        The section of response provides details of the result check against
+        various negative reference repository (e.g. UN Sanction, OFAC Sanction,
+        BNM, KDN, MasterCard, Visa, Finexus cards' blacklist)
+      required:
+        - totalmatch
+      type: object
+      properties:
+        totalMatch:
+          type: number
+          description: >-
+            Indicate the number of negative reference 
+            matched individuals
+          example: 1
+        sdnList:
+          type: array
+          description: List of SDNs matched by NRC
+          items:
+            $ref: '#/components/schemas/MatchedOrgSDN'
+    OverallPersonRefReport:
+      required:
+        - personreport
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonRefReport'
+        employer:
+          $ref: '#/components/schemas/OrgRefReport'
+      description: >-
+        This report combine the person's negative reference reports with the
+        employer's report
+    MatchedPersonSDN:
+      required:
+        - gender
+        - idNo
+        - name
+        - nationality
+        - yearofbirth
+      type: object
+      properties:
+        nationality:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        idNo:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        name:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        gender:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        yearOfBirth:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        sdnInfo:
+          $ref: '#/components/schemas/SDNPersonDetail'
+      description: Detail of the SDN matched with person's info
+    MatchedOrgSDN:
+      required:
+        - countryDomicile
+        - idNo
+        - name
+      type: object
+      properties:
+        countryDomicile:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        idNo:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        name:
+          $ref: '#/components/schemas/FieldMatchedResult'
+        sdnInfo:
+          $ref: '#/components/schemas/SDNOrgDetail'
+      description: Detail of the SDN matched with person's info
+    FieldMatchedResult:
+      required:
+        - applicant
+        - result
+        - sdn
+      type: object
+      properties:
+        applicant:
+          type: string
+          example: MY
+        sdn:
+          type: string
+          example: MY
+        result:
+          type: string
+          example: Exact
+          enum:
+            - Exact
+            - Partial
+            - NoMatch
+      description: This object shows the matched result for the matching field
+    SDNPersonDetail:
+      required:
+        - authority
+        - authorityid
+        - name
+        - program
+      type: object
+      properties:
+        authority:
+          maxLength: 16
+          type: string
+          description: The authiorty which publish the Sanction List
+          example: OFAC
+          enum:
+            - OFAC
+            - UNSC
+            - BNM
+            - KDN
+            - BLACKLIST
+        authorityId:
+          type: string
+          description: This authority's id for the SDN
+          format: number
+          example: '4775'
+        program:
+          maxLength: 12
+          type: string
+          description: The sanction program name
+          example: SDNT
+        name:
+          maxLength: 350
+          type: string
+          description: The name listed in the Sanction List
+          example: 'NASSER DAVID, Julio Cesar'
+        dob:
+          description: Date of Birth that listed in the Sanction list
+          type: string
+          format: date
+        pob:
+          maxLength: 64
+          type: string
+          description: The place of birth
+          example: Not Available
+        gender:
+          type: string
+          description: >-
+            Person's Gender which has the value of M-Male,F-Female and NA- Not
+            Available
+          example: NA
+          enum:
+            - M
+            - F
+            - NA
+        idDocType:
+          type: string
+          description: 'The type of ID Document type which can be Passport, NRIC or Others'
+          example: Passport
+          enum:
+            - Passport
+            - NRIC
+            - Others
+            - Not Available
+        idNo:
+          type: string
+          description: The ID document reference no
+          example: H130865
+        nationality:
+          type: string
+          description: The nationality of the person
+          example: Colombia
+        idIssuedCountry:
+          type: string
+          description: The ID document is issued which country
+          example: Colombia
+        address:
+          type: string
+          description: The address of the person
+          example: >-
+            3778  c/o INVERSIONES HOTELERAS DEL LITORAL LTDA, Barranquilla,
+            Colombia
+        remark:
+          type: string
+          description: Additional remark for the person
+          example: >-
+            DOB 01 Nov 1940; alt. DOB 01 Oct 1940; Cedula No. 3710619
+            (Colombia); Passport H130865 (Colombia).
+      description: This section provide details of all the field of the matched SDNs
+    SDNOrgDetail:
+      required:
+        - authority
+        - authorityid
+        - name
+        - program
+      type: object
+      properties:
+        authority:
+          maxLength: 16
+          type: string
+          description: The authiorty which publish the Sanction List
+          example: OFAC
+          enum:
+            - OFAC
+            - UNSC
+            - BNM
+            - KDN
+            - BLACKLIST
+        authorityId:
+          type: string
+          description: This authority's id for the SDN
+          format: number
+          example: '4775'
+        program:
+          maxLength: 12
+          type: string
+          description: The sanction program name
+          example: SUDAN
+        name:
+          maxLength: 350
+          type: string
+          description: The name listed in the Sanction List
+          example: SUDANESE REAL ESTATE SERVICES COMPANY
+        idDocType:
+          type: string
+          description: 'The type of ID Document type which can be Passport, NRIC or Others'
+          example: Not Avaialble
+          enum:
+            - Passport
+            - NRIC
+            - Others
+            - Not Available
+        idNo:
+          type: string
+          description: The ID document reference no
+          example: Not Available
+        countryOfIncorporation:
+          type: string
+          description: The country of incorporation for the organisation
+          example: Not Available
+        address:
+          type: string
+          description: The address of the person
+          example: '3105 , Khartoum, Sudan'
+        remark:
+          type: string
+          description: Additional remark for the person
+          example: Not Available
+      description: >-
+        This section provide details of all the field of the matched SDNs for
+        Organisation
+    CardSchemeBlacklistedSubject:
+      required:
+        - address
+        - bizName
+        - cardscheme
+        - dateListed
+        - idNo
+        - legalName
+        - pic
+      type: object
+      properties:
+        cardScheme:
+          maxLength: 8
+          type: string
+          description: The Card Scheme which has blacklisted the organisation
+          example: VISA
+          enum:
+            - ALL
+            - VISA
+            - MASTER
+        legalName:
+          maxLength: 128
+          type: string
+          description: Name of the organsisation as in the official ID document
+          example: Beryaya Starbuicks Company Sdn Bhd
+        bizName:
+          maxLength: 128
+          type: string
+          description: The brand name under which the organisation operates
+          example: Starbuicks Malaysia
+        idNo:
+          maxLength: 64
+          type: string
+          description: >-
+            The organsiation's unique identifier in accordance to its supporting
+            ID document
+          example: 948649-V
+        pic:
+          maxLength: 64
+          type: string
+          description: The name of the person-in-charge
+          example: Kelvin Lan Beng Beng
+        mcc:
+          maxLength: 4
+          type: number
+          description: The merchant category code for the organisation
+          example: 5812
+        address:
+          $ref: '#/components/schemas/Address'
+        dateListed:
+          type: string
+          description: >-
+            The date when the organization was added to the blacklist.
+            format: YYYY-MM-DD
+          format: date
+    CardSchemeBlacklistResult:
+      required:
+        - totalMatched
+      type: object
+      properties:
+        totalMatched:
+          type: string
+          description: No of matched blacklisted subjects return by card scheme
+          format: number
+          example: '1'
+        blacklist:
+          type: array
+          description: >-
+            An array of blacklisted subjects which match the organisation we are
+            checking return by the card scheme
+          items:
+            $ref: '#/components/schemas/CardSchemeBlacklistedSubject'
+    
+    CTOSReportResponse:
+      description: This object contains the Person or Organisation’s CTOS report used during ACDD evaluation.
+      required:
+        - totalApprovedLoan
+        - creditScoring
+        - rulesEvaluated
+        - requiredReport
+        - recommendation
+        - reportFormat
+        - threshold
+        - xmlContent
+      type: object
+      properties:
+        totalApprovedLoan:
+          type: number
+          description: >-
+            This field shows the total of loan approved by authorities of
+            the applicant.
+          example: 11
+        creditScoring:
+          type: number
+          description: >-
+            This field provides the overall risk score computed by ACDD in
+            accordance with the evaluation rules.
+            Between 0 - 100
+          example: 0
+        rulesEvaluated:
+          description: >-
+            This object provides the detail result of a rule that has been
+            evaluated.
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluatedRules'
+        requiredReport:
+          type: string
+          description: >-
+            This field indicates if user require a CTOS report or not
+          enum: 
+            - YES
+            - NO
+        recommendation:
+          type: string
+          description: >-
+            This field indicates CTOS’s recommendation whether to accept 
+            or reject information from CTOS report.
+            A – Accept
+            R – Reject
+          enum:
+            - A
+            - R
+        reportFormat:
+          type: string
+          description: >-
+            This field allows user to choose the format of CTOS report.
+            Currently supported format is XML and JSON
+          enum:
+            - XML
+            - JSON
+        threshold:
+          type: number
+          description: >-
+            This field provides the threshold whereby if the computed
+            overall risk score has exceeded then ACDD will recommend to
+            reject the Applicant.
+            Between 0 - 100
+          example: 33
+        xmlContent:
+          allOf:
+            - description: This field contains the CTOS report in XML format.
+            - $ref: '#/components/schemas/CTOSXmlReport'
+    
+    CTOSXmlReport:
+      required:
+        - xmlcontent
+      type: object
+      properties:
+        xmlContent:
+          type: string
+          description: Contain the CTOS report for the applicant in XML format
+          example: >-
+            <batch output="" no="0009"
+            xmlns="http://ws.cmctos.com.my/ctosnet/request"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <company_code>UAT</company_code> <account_no>UAT</account_no>
+            <user_id>uat</user_id> <record_total>1</record_total> <records>
+            <type code="11">I</type> <ic_lc/> <nic_br>820423145468</nic_br>
+            <name>A B C</name> <mphone_nos> <mphone_no/> </mphone_nos> <ref_no/>
+            <dist_code>testing_Dist_Code</dist_code> <purpose code="200">Credit
+            evaluation/account opening on subject/directors/shareholder with
+            consent /due diligence on AMLA compliance</purpose> <state code=""
+            xsi:nil="true"/> <country code="" xsi:nil="true"/>
+            <include_consent>1</include_consent> <include_ctos>1</include_ctos>
+            <include_trex>1</include_trex> <include_ccris
+            sum="0">1</include_ccris> <include_dcheq>1</include_dcheq>
+            <include_ccris_supp>0</include_ccris_supp>
+            <include_fico>1</include_fico> <include_sfi>0</include_sfi>
+            <include_ssm>0</include_ssm> <include_angkasa>0</include_angkasa>
+            </records> </batch>
+    SCReportResult:
+      description: This object shows the matched result for the matching field.
+      required:
+        - active
+        - address
+        - createdDate
+        - id
+        - md5
+        - modifiedDate
+        - name
+        - remarks
+        - website
+        - year
+      type: object
+      properties:
+        website:
+          type: string
+          description: The organisation’s official or person's personal website address.
+          example: 'https://www.facebook.com/abcdefg'
+        createDate:
+          type: string
+          description: Indicate the date when the system create the data into the database.
+          example: 'Mar 5, 2021, 5:10:14 PM'
+        address:
+          type: string
+          description: >-
+            The applicant’s residential address or the office address of the
+            organization.
+          example: 'No 1 Jalan Manis, Taman Madu, Kuala Lumpur, Selangor'
+        year:
+          type: string
+          description: >-
+            Indicate the year of the person or the organisation inserted in
+            SCM list.
+          example: '2021'
+        name:
+          type: string
+          description: This object shows the matched result for the name field.
+          example: 'John Smith (NRIC: 000000-00-0000)'
+        modifiedDate:
+          type: string
+          description: >-
+            Indicate the date when the system modified the data into the
+            database.
+          example: 'Mar 5, 2021, 5:10:14 PM'
+        active:
+          type: boolean
+          description: Indicate the person or organisation is listed in SC or not. 
+        id:
+          type: string
+          description: >-
+            Indicate the id of each person or organisation that specified
+            in SC database. 
+          example: '001'
+        remarks:
+          type: string
+          description: Additional remark of the person or organization that was added in database. 
+          example: Fraud
+        md5:
+          type: string
+          description: The hash algorithm to validate the SC data.
+          example: FFFFFFFFFFFFFFFFF0000001
+      
+    DMNInfo:
+      description: >-
+        This object contains the Person or Organisation’s CTOS report used during 
+        ACDD evaluation.
+      required:
+        - username
+        - password
+        - url
+        - model-namespace
+        - model-name
+      type: object
+      properties:
+        username:
+          description: The username for DMN’s basic authenticate.
+          type: string
+        password:
+          type: string
+          description: The password for DMN’s basic authenticate.
+        url:
+          description: The URL with endpoint for which deployed project to use.
+          type: string
+        model-namespace:
+          type: string
+          description: The model-namespace for which DMN to use
+        model-name:
+          description: The model-name for which DMN to use
+          type: string
+      
+  responses:
+    TestResponse:
+      description: Response for ACDD Health Check
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TestResponse'
+    CDDPostResponse:
+      description: Schema for standard response for a identifyverify Post request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CDDResult'
+    CDDGetResponse:
+      description: Schema for standard response for a identifyverify GET request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CDDGetResponse'
+    OrgnCDDPostResponse:
+      description: Schema for standard response for a orgncheckcdd Post request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/schemas/CDDResult'
+    OrgnCDDGetResponse:
+      description: Schema for standard response for a orgncheckcdd GET request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/responses/OrgnCDDPostResponse'
+    BlacklistReportResponse:
+      description: Schema for the e-Money Blacklist report
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/schemas/BlacklistedEntity'
+    CardSchemeReportResponse:
+      description: Schema for the Card Scheme Blacklist report
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/schemas/CardSchemeBlacklistResult'
+    CTOSReportResponse:
+      description: >-
+        Response For GET CTOS report of an earlier checkpersoncdd or checkorgcdd
+        request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/schemas/CTOSReportResponse'
+    PersonSanctionReportResponse:
+      description: >-
+        Response For GET the Sanction report of an earlier checkpersoncdd or
+        checkorgcdd request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/schemas/OverallPersonRefReport'
+    OrgSanctionReportResponse:
+      description: >-
+        Response For GET the Sanction report of an earlier checkpersoncdd or
+        checkorgcdd request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/StatusResponse'
+              payload:
+                $ref: '#/components/schemas/OrgRefReport'
+  parameters:
+    SourceSystem:
+      name: source
+      in: query
+      description: ID of the source system for the query request
+      required: true
+      style: form
+      explode: true
+      schema:
+        maxLength: 16
+        type: string
+        example: FNXCRDS
+    SourceReference:
+      name: reference
+      in: query
+      description: The unique reference used by the source system when iniate the request
+      required: true
+      style: form
+      explode: true
+      schema:
+        maxLength: 32
+        type: string
+        example: '2003160192931'
+    ApiVersion:
+      name: apiVersion
+      in: query
+      description: Specify the version for the API request
+      required: true
+      style: form
+      explode: true
+      schema:
+        maxLength: 8
+        type: string
+        example: '1.2'
+    ApiKey:
+      name: apiKey
+      in: query
+      description: API-key assigned by e-KYC for access by source system
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxLength: 64
+        type: string
+        example: 123-KEJRU-001
+    Language:
+      name: language
+      in: query
+      description: >-
+        Specify the language of the message text in the response message.
+        Currently supports only English
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: en
+        enum:
+          - en
+          - ms
+        default: en
+    DateofBirth:
+      name: dob
+      in: query
+      description: The person's date of birth
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+        format: date
+    GetReferenceID:
+      name: referenceId
+      in: query
+      description: >-
+        The reference ID of an earlier submitted request to retrieve the
+        response
+      required: true
+      style: form
+      explode: true
+      schema:
+        maxLength: 32
+        type: string
+        example: '2003160192931'
+    EmailAddress:
+      name: eamil
+      in: query
+      description: The applicant's email address
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        format: email
+        example: mkchan88@gmail.com
+    PersonRace:
+      name: race
+      in: query
+      description: The person's race
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxLength: 32
+        type: string
+        example: Chinese
+    PersonGender:
+      name: gender
+      in: query
+      description: The person's gender
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: M
+        enum:
+          - M
+          - F
+        default: M
+    EMoneyID:
+      name: emoney
+      in: query
+      description: >-
+        This field contain the code of our eMoney customers which are using our
+        system to maintain their blacklist. Example of such customers -Finexus
+        Cards, UMobile, MerchantTrade, etc
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxLength: 32
+        type: string
+        example: FNXCARDS
+        enum:
+          - FNXCARDS
+          - UMOBILE
+          - MERCHANTTRADE
+    EntityType:
+      name: type
+      in: query
+      description: >-
+        The type of entity for this blacklist entity, which is either P for
+        person and O for organisation
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: P
+        enum:
+          - P
+          - O
+    IDDocType:
+      name: iddoctype
+      in: query
+      description: The type of ID document for the entity
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: MYKAD
+        enum:
+          - MYKAD
+          - PASSPORT
+          - UNID
+          - BCREGNO
+          - MYTENTERA
+          - UNHCR
+    IDNo:
+      name: iddno
+      in: query
+      description: The type of ID document for the entity
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxLength: 32
+        type: string
+        example: 683904-J
+    EntityName:
+      name: name
+      in: query
+      description: The full name of the entity as in ID document
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxLength: 128
+        type: string
+        example: Saraj Hagani
+    CWCustRefNo:
+      name: custrefid
+      in: query
+      description: This is the CardWorks' Customer Reference ID
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxLength: 64
+        type: string
+        example: '2019040102929'
+    BlackListReasonCode:
+      name: reasoncode
+      in: query
+      description: The reason in code for blacklisting this entity
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: FRAUD
+    BlackListReasonText:
+      name: reason
+      in: query
+      description: The reason for blacklisting this entity
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: Illegal
+    CardScheme:
+      name: cardscheme
+      in: query
+      description: The name of the card scheme's blacklist to check for an organisation
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: VISA
+        enum:
+          - ALL
+          - VISA
+          - MASTER
+        default: VISA
+  securitySchemes:
+    default:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: ''
+          scopes: {}
+x-wso2-auth-header: Authorization
+x-wso2-cors:
+  corsConfigurationEnabled: false
+  accessControlAllowOrigins:
+    - '*'
+  accessControlAllowCredentials: false
+  accessControlAllowHeaders:
+    - authorization
+    - Access-Control-Allow-Origin
+    - Content-Type
+    - SOAPAction
+    - apikey
+    - testKey
+  accessControlAllowMethods:
+    - GET
+    - PUT
+    - POST
+    - DELETE
+    - PATCH
+    - OPTIONS
+x-wso2-production-endpoints:
+  urls:
+    - 'https://virtserver.swaggerhub.com/finexuscard/ekyc-acdd/1.2.1'
+  type: http
+x-wso2-sandbox-endpoints:
+  urls:
+    - 'https://virtserver.swaggerhub.com/finexuscard/ekyc-acdd/1.2.1'
+  type: http
+x-wso2-basePath: /acdd/1.2
+x-wso2-transports:
+  - http
+  - https
+x-wso2-response-cache:
+  enabled: false
+  cacheTimeoutInSeconds: 300
